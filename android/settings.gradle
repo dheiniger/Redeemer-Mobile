@@ -1,0 +1,3 @@
+rootProject.name = 'RedeemerMobile'
+
+include ':app'
