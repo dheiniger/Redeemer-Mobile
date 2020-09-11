@@ -24,17 +24,19 @@
       [view {:style {:width "100%" :height "100%"}}
        [header]
        [body
-        [text {:style {:font-size 30 :font-weight "100" :text-align "center"}} @greeting]
-        [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]])))
+        [text {:key   "greeting-text"
+               :style {:font-size 30 :font-weight "100" :text-align "center"}} @greeting]]])))
 
 (defn header []
   [view {:style {:height 60}}
-   [image {:source menu-img
-           :style  {:height 25 :width 35 :margin 5 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 0}}]
+   [touchable-highlight {:on-press #(alert "Button Pressed")
+                         :style    {:height 50 :width 50}}
+    [image {:source menu-img
+            :style  {:height 25 :width 35 :margin 8 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 0}}]]
    [image {:source logo-img
-           :style  {:width 40 :height 60 :margin-top -5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
+           :style  {:width 40 :height 60 :margin-top -5 :margin-right 5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
 
-(defn body [content]
+(defn body [& content]
   [view {:style {:width "80%" :margin-left "auto" :margin-right "auto"}}
    content])
 
