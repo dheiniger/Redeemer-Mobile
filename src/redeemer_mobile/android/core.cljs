@@ -5,29 +5,44 @@
             [redeemer-mobile.subs]))
 
 (def ReactNative (js/require "react-native"))
-
 (def app-registry (.-AppRegistry ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
+(def react-native-side-menu (r/adapt-react-class (.-default (js/require "react-native-side-menu"))))
 
 (def logo-img (js/require "./images/logo.png"))
+(def menu-img (js/require "./images/hamburger-icon.png"))
 
 (defn alert [title]
-      (.alert (.-Alert ReactNative) title))
+  (.alert (.-Alert ReactNative) title))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
     (fn []
-      [view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
-       [text {:style {:font-size 30 :font-weight "100" :margin-bottom 20 :text-align "center"}} @greeting]
-       [image {:source logo-img
-               :style  {:width 85 :height 80 :margin-bottom 30}}]
-       [touchable-highlight {:style {:background-color "#999" :padding 10 :border-radius 5}
-                             :on-press #(alert "HELLO!")}
+      [view {:style {:width "100%" :height "100%"}}
+       [header]
+       [body
+        [text {:style {:font-size 30 :font-weight "100" :text-align "center"}} @greeting]
         [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]])))
 
+(defn header []
+  [view {:style {:height 60}}
+   [image {:source menu-img
+           :style  {:height 25 :width 35 :margin 5 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 0}}]
+   [image {:source logo-img
+           :style  {:width 40 :height 60 :margin-top -5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
+
+(defn body [content]
+  [view {:style {:width "80%" :margin-left "auto" :margin-right "auto"}}
+   content])
+
+(defn menu-items []
+  [view {:style {:color "gray"}}
+   [text {:style {:color "white"}} "Element 1"]
+   [text {:style {:color "white"}} "Element 2"]])
+
 (defn init []
-      (dispatch-sync [:initialize-db])
-      (.registerComponent app-registry "RedeemerMobile" #(r/reactify-component app-root)))
+  (dispatch-sync [:initialize-db])
+  (.registerComponent app-registry "RedeemerMobile" #(r/reactify-component app-root)))
