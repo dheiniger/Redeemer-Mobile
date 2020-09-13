@@ -22,7 +22,8 @@
       "modules": [
         "react-native",
         "react-native-side-menu",
-        "./images/logo.png"
+        "./images/logo.png",
+        "./images/hamburger-icon.png"
       ]
     }
   },
