@@ -1,8 +1,8 @@
 (ns redeemer-mobile.events
   (:require
-   [re-frame.core :refer [reg-event-db after]]
-   [clojure.spec.alpha :as s]
-   [redeemer-mobile.db :as db :refer [app-db]]))
+    [re-frame.core :refer [reg-event-db reg-event-fx after]]
+    [clojure.spec.alpha :as s]
+    [redeemer-mobile.db :as db :refer [app-db]]))
 
 ;; -- Interceptors ------------------------------------------------------------
 ;;
@@ -23,13 +23,40 @@
 ;; -- Handlers --------------------------------------------------------------
 
 (reg-event-db
- :initialize-db
- validate-spec
- (fn [_ _]
-   app-db))
+  :initialize-db
+  validate-spec
+  (fn [_ _]
+    app-db))
 
 (reg-event-db
- :set-greeting
- validate-spec
- (fn [db [_ value]]
-   (assoc db :greeting value)))
+  :set-greeting
+  validate-spec
+  (fn [db [_ value]]
+    (assoc db :greeting value)))
+
+(reg-event-fx
+  :menu-opened
+  (fn [coeefects event]
+    (update-menu-state coeefects event)))
+
+(reg-event-fx
+  :menu-closed
+  (fn [coeefects event]
+    (update-menu-state coeefects event)))
+
+(defn update-menu-state [coeefects event]
+  (let [db (:db coeefects)
+        menu-state (:menu-state db)
+        new-db (assoc db :menu-state (toggle-menu menu-state))]
+    (print "in toggle-menu")
+    (print (str "co-effects are " coeefects))
+    (print (str "event is " event))
+    (print (str "db is: " db))
+    (assoc new-db :menu-state "closed")
+    (print (str "new db is: " new-db))
+    {:db new-db}))
+
+(defn toggle-menu [menu-state]
+  (if (= "open" menu-state)
+    "closed"
+    "open"))
