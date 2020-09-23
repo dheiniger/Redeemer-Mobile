@@ -5,3 +5,8 @@
   :get-greeting
   (fn [db _]
     (:greeting db)))
+
+(reg-sub
+  :get-menu-state
+  (fn [db _]
+    (:menu-state db)))

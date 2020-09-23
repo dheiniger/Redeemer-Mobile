@@ -7,4 +7,5 @@
   (s/keys :req-un [::greeting]))
 
 ;; initial state of app-db
-(def app-db {:greeting "Welcome to Redeemer Baptist Church of Norwalk!"})
+(def app-db {:greeting   "Welcome to Redeemer Baptist Church of Norwalk!"
+             :menu-state "closed"})

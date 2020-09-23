@@ -12,11 +12,19 @@
   "platforms": {
     "ios": {
       "host": "localhost",
-      "modules": []
+      "modules": [
+        "react-native",
+        "./images/cljs.png"
+      ]
     },
     "android": {
       "host": "localhost",
-      "modules": []
+      "modules": [
+        "react-native",
+        "react-native-side-menu",
+        "./images/logo.png",
+        "./images/hamburger-icon.png"
+      ]
     }
   },
   "autoRequire": false
