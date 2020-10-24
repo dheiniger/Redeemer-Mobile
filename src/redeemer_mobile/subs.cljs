@@ -2,9 +2,9 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
-  :get-greeting
+  :get-content
   (fn [db _]
-    (:greeting db)))
+    (:content db)))
 
 (reg-sub
   :get-menu-state

@@ -12,15 +12,15 @@
 
 
 (defn app-root []
-  (let [greeting (subscribe [:get-greeting])
+  (let [content (subscribe [:get-content])
         state (subscribe [:get-menu-state])]
     (fn []
       [view {:style {:width "100%" :height "100%"}}
        [header @state]
        [body
         @state                                              ;;TODO HACKY, WILL TRY TO FIX EVENTUALLY
-        [text {:key   "greeting-text"
-               :style {:font-size 30 :font-weight "100" :text-align "center"}} @greeting]]])))
+        [text {:key   "content"
+               :style {:font-size 30 :font-weight "100" :text-align "center"}} @content]]])))
 
 (defn body [menu-state & content]
   (let [height (if (= "open" menu-state) 0 "auto")]

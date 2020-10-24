@@ -7,6 +7,9 @@
     [cljs.core.async :refer [<!]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
+;;TODO - for testing
+(def JSON "{\n  \"firstName\": \"Daniel\",\n  \"lastName\": \"Heiniger\",\n  \"Something Nested\": {\n    \"Key 1\": \"Value 1\"\n  }\n}")
+(def PARSED_JSON (js->clj (.parse js/JSON JSON) :keywordize-keys true))
 ;; -- Interceptors ------------------------------------------------------------
 ;;
 ;; See https://github.com/Day8/re-frame/blob/master/docs/Interceptors.md
@@ -34,34 +37,40 @@
   validate-spec
   (fn [_ _]
     ;;(make-remote-call "http://54.144.99.209:8085/") TODO
+    (println "initializing...")
+    (println "Json: " PARSED_JSON)
+    (println "First name is: " (:firstName PARSED_JSON))
+    (println "Type is: " (type PARSED_JSON))
     app-db))
 
 (reg-event-db
-  :set-greeting
+  :set-content
   validate-spec
   (fn [db [_ value]]
-    (assoc db :greeting value)))
+    (assoc db :content value)))
+;;TODO do these need to be -fx?
+
+(reg-event-db
+  :option-pressed
+  (fn [coeffects event]
+    (let [db (:db coeffects)]
+      (assoc db :content (second event) :menu-state "closed"))))
 
 (reg-event-fx
   :menu-opened
-  (fn [coeefects event]
-    (update-menu-state coeefects event)))
+  (fn [coeefects]
+    (update-menu-state coeefects)))
 
 (reg-event-fx
   :menu-closed
-  (fn [coeefects event]
-    (update-menu-state coeefects event)))
+  (fn [coeefects]
+    (update-menu-state coeefects)))
 
-(defn update-menu-state [coeefects event]
+(defn update-menu-state [coeefects]
   (let [db (:db coeefects)
         menu-state (:menu-state db)
         new-db (assoc db :menu-state (toggle-menu menu-state))]
-    (print "in toggle-menu")
-    (print (str "co-effects are " coeefects))
-    (print (str "event is " event))
-    (print (str "db is: " db))
     (assoc new-db :menu-state "closed")
-    (print (str "new db is: " new-db))
     {:db new-db}))
 
 (defn toggle-menu [menu-state]
@@ -73,5 +82,3 @@
   (go (println "fetching data...")
       (prn (<! (http/get endpoint)))
       :body))
-
-

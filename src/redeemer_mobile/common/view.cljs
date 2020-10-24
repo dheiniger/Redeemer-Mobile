@@ -28,8 +28,9 @@
 
 (defn menu-closed []
   [view
-   [touchable-highlight {:on-press #(re-frame.core/dispatch [:menu-opened])
-                         :style    {:height 50 :width 50}}
+   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:menu-opened])
+                         :style          {:height 50 :width 50}
+                         :underlay-color "white"}
     [image {:source menu-img
             :style  {:height 25 :width 35 :margin 8 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 0}}]]])
 
@@ -37,7 +38,7 @@
   [view {:style {:width menu-width :height 900 :background-color "white"}}
    [touchable-highlight {:on-press       #(re-frame.core/dispatch [:menu-closed])
                          :style          {:height 50 :width 50 :left (- menu-width 50)}
-                         :underlay-color "red"}
+                         :underlay-color "white"}
     [image {:source menu-img
             :style  {:height 25 :width 35 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 8}}]]
    [menu-items]])
@@ -46,12 +47,17 @@
   [view
    [menu-item logo-img "Home"]
    [menu-item logo-img "Welcome"]
-   [menu-item logo-img "About Us"]])
+   [menu-item logo-img "About Us"]
+   [menu-item logo-img "Audio"]
+   [menu-item logo-img "Video"]
+   [menu-item logo-img "Give"]
+   [menu-item logo-img "Member Login"]])
 
 (defn menu-item [icon menu-text]
   [view {:style {:height 45}}
-   [touchable-highlight {:on-press #(alert (str menu-text " Pressed!"))
-                         :style    {:width menu-width :height 45}}
+   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed menu-text])
+                         :style          {:width menu-width :height 45}
+                         :underlay-color "white"}
     [view
      [image {:source icon
              :style  {:height 45 :width 40}}]
