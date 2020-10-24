@@ -1,6 +1,7 @@
 (ns redeemer-mobile.common.view
   (:require [reagent.core :as r :refer [atom]]
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
+            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
+            [clojure.string :as str]))
 
 (def ReactNative (js/require "react-native"))
 (def view (r/adapt-react-class (.-View ReactNative)))
@@ -11,9 +12,6 @@
 (def menu-img (js/require "./images/hamburger-icon.png"))
 (def menu-width 310)
 
-;;TODO will remove soon
-(defn alert [title]
-  (.alert (.-Alert ReactNative) title))
 
 (defn header [state]
   [view {:style {:height 60}}
@@ -22,7 +20,7 @@
            :style  {:width 40 :height 60 :margin-top -5 :margin-right 5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
 
 (defn menu [state]
-  (if (= "open" state)
+  (if (= :open state)
     [menu-open]
     [menu-closed]))
 
@@ -47,15 +45,15 @@
   [view
    [menu-item logo-img "Home"]
    [menu-item logo-img "Welcome"]
-   [menu-item logo-img "About Us"]
-   [menu-item logo-img "Audio"]
-   [menu-item logo-img "Video"]
-   [menu-item logo-img "Give"]
-   [menu-item logo-img "Member Login"]])
+   [menu-item logo-img "Learn"]
+   [menu-item logo-img "Sermons"]
+   [menu-item logo-img "Blog"]
+   [menu-item logo-img "Counseling"]
+   [menu-item logo-img "Contact"]])
 
 (defn menu-item [icon menu-text]
   [view {:style {:height 45}}
-   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed menu-text])
+   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed (keyword (str/replace menu-text " " "-" ))])
                          :style          {:width menu-width :height 45}
                          :underlay-color "white"}
     [view

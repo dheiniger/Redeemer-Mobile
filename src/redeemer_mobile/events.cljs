@@ -43,40 +43,39 @@
     (println "Type is: " (type PARSED_JSON))
     app-db))
 
-(reg-event-db
-  :set-content
-  validate-spec
-  (fn [db [_ value]]
-    (assoc db :content value)))
 ;;TODO do these need to be -fx?
 
 (reg-event-db
   :option-pressed
-  (fn [coeffects event]
-    (let [db (:db coeffects)]
-      (assoc db :content (second event) :menu-state "closed"))))
+  (fn [co-effects event]
+    (println "Menu option pressed")
+    (println "Event is: " event)
+    (println "Co-effects are: " co-effects)
+    (println "db is: " (:db co-effects))
+    (let [db (:db co-effects)]
+      (assoc db :page (second event) :menu-state :closed))))
 
 (reg-event-fx
   :menu-opened
-  (fn [coeefects]
-    (update-menu-state coeefects)))
+  (fn [co-effects]
+    (update-menu-state co-effects)))
 
 (reg-event-fx
   :menu-closed
-  (fn [coeefects]
-    (update-menu-state coeefects)))
+  (fn [co-effects]
+    (update-menu-state co-effects)))
 
-(defn update-menu-state [coeefects]
-  (let [db (:db coeefects)
+(defn update-menu-state [co-effects]
+  (let [db (:db co-effects)
         menu-state (:menu-state db)
         new-db (assoc db :menu-state (toggle-menu menu-state))]
-    (assoc new-db :menu-state "closed")
+    (assoc new-db :menu-state :closed)
     {:db new-db}))
 
 (defn toggle-menu [menu-state]
-  (if (= "open" menu-state)
-    "closed"
-    "open"))
+  (if (= :open menu-state)
+    :closed
+    :open))
 
 (defn make-remote-call [endpoint]
   (go (println "fetching data...")

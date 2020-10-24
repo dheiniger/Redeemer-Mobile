@@ -2,9 +2,9 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
-  :get-content
+  :get-page
   (fn [db _]
-    (:content db)))
+    (:page db)))
 
 (reg-sub
   :get-menu-state
