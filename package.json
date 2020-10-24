@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babel/plugin-external-helpers": "^7.0.0",
+    "http-simple-proxy": "^1.0.5",
     "react": "16.8.3",
     "react-native": "0.59.5",
     "react-native-side-menu": "^1.1.3"
@@ -26,5 +27,6 @@
   },
   "jest": {
     "preset": "react-native"
-  }
+  },
+  "proxy": "http://localhost:8085"
 }

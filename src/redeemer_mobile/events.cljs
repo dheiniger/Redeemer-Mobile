@@ -2,7 +2,10 @@
   (:require
     [re-frame.core :refer [reg-event-db reg-event-fx after]]
     [clojure.spec.alpha :as s]
-    [redeemer-mobile.db :as db :refer [app-db]]))
+    [redeemer-mobile.db :as db :refer [app-db]]
+    [cljs-http.client :as http]
+    [cljs.core.async :refer [<!]])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 ;; -- Interceptors ------------------------------------------------------------
 ;;
@@ -22,10 +25,15 @@
 
 ;; -- Handlers --------------------------------------------------------------
 
+;;TODO make api calls here??
+;;TODO this might make the initialization really slow though so maybe move some to
+;;TODO on-demand places, but cache it??
+
 (reg-event-db
   :initialize-db
   validate-spec
   (fn [_ _]
+    ;;(make-remote-call "http://54.144.99.209:8085/") TODO
     app-db))
 
 (reg-event-db
@@ -60,3 +68,10 @@
   (if (= "open" menu-state)
     "closed"
     "open"))
+
+(defn make-remote-call [endpoint]
+  (go (println "fetching data...")
+      (prn (<! (http/get endpoint)))
+      :body))
+
+
