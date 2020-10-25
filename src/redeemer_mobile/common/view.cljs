@@ -44,16 +44,15 @@
 (defn menu-items []
   [view
    [menu-item logo-img "Home"]
-   [menu-item logo-img "Welcome"]
-   [menu-item logo-img "Learn"]
-   [menu-item logo-img "Sermons"]
-   [menu-item logo-img "Blog"]
+   [menu-item logo-img "Learn" "https://redeemernorwalk.org/learn/"]
+   [menu-item logo-img "Sermons" "https://redeemernorwalk.org/sermons/"]
+   [menu-item logo-img "Blog" "https://redeemernorwalk.org/blog/"]
    [menu-item logo-img "Counseling"]
    [menu-item logo-img "Contact"]])
 
-(defn menu-item [icon menu-text]
+(defn menu-item [icon menu-text request-url]
   [view {:style {:height 45}}
-   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed (keyword (str/replace menu-text " " "-" ))])
+   [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed (make-keyword menu-text) request-url])
                          :style          {:width menu-width :height 45}
                          :underlay-color "white"}
     [view
@@ -61,3 +60,7 @@
              :style  {:height 45 :width 40}}]
      [text {:style {:font-size 30 :flex 1 :position "absolute" :left 60}}
       menu-text]]]])
+
+(defn make-keyword [menu-text]
+  (keyword (str/replace menu-text " " "-" )))
+

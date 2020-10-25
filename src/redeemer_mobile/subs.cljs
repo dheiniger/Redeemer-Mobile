@@ -10,3 +10,8 @@
   :get-menu-state
   (fn [db _]
     (:menu-state db)))
+
+(reg-sub
+  :get-learn-page-content
+  (fn [db _]
+    (:learn-page-content db)))

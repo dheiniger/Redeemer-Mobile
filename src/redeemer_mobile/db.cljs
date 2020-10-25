@@ -9,4 +9,5 @@
 
 ;; initial state of app-db
 (def app-db {:page   :Home
-             :menu-state :closed})
+             :menu-state :closed
+             :learn-page-content "Learn page"})

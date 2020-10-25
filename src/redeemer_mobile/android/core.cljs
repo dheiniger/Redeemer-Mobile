@@ -22,13 +22,10 @@
   [view {:key   "home-page"}
    [text {:style (page-style)} "Home Page"]])
 
-(defn welcome-page []
-  [view {:key   "home-page"}
-   [text {:style (page-style)} "Welcome Page"]])
-
 (defn learn-page []
+  (let [learn-page-content (subscribe [:get-learn-page-content])]
   [view {:key   "learn-page"}
-   [text {:style (page-style)} "Learn Page"]])
+   [text {:style (page-style)}  @learn-page-content]]))
 
 (defn sermons-page []
   [view {:key   "sermons-page"}
@@ -51,7 +48,6 @@
 
 (defn pages []
   {:Home home-page
-   :Welcome welcome-page
    :Learn learn-page
    :Sermons sermons-page
    :Blog blog-page

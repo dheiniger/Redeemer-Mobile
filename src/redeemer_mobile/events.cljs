@@ -28,10 +28,6 @@
 
 ;; -- Handlers --------------------------------------------------------------
 
-;;TODO make api calls here??
-;;TODO this might make the initialization really slow though so maybe move some to
-;;TODO on-demand places, but cache it??
-
 (reg-event-db
   :initialize-db
   validate-spec
@@ -44,16 +40,40 @@
     app-db))
 
 ;;TODO do these need to be -fx?
+;;TODO stop doing side effects (instead cause them)
 
 (reg-event-db
   :option-pressed
-  (fn [co-effects event]
+  (fn [db event]
+    (let [url (last event)]
     (println "Menu option pressed")
     (println "Event is: " event)
-    (println "Co-effects are: " co-effects)
-    (println "db is: " (:db co-effects))
-    (let [db (:db co-effects)]
-      (assoc db :page (second event) :menu-state :closed))))
+    (println "Co-effects are: " db)
+    (if (not (nil? url));;TODO BAD - SIDE EFFECT
+      (re-frame.core/dispatch [:page-load-requested (second event) url]))
+    (assoc db :page (second event)
+              :menu-state :closed))))
+
+;;TODO cache
+(reg-event-db
+  :page-load-requested
+  (fn [db event]
+    (let [url (last event)]
+    (prn "Learn page requested...")
+    (prn "co-effects are " db)
+    (prn "event is " event)
+    (prn "db is " (:db db))
+    (let [db (assoc db :learn-page-content "Loading...")];;TODO generalize this
+      (make-remote-call url)
+      (prn "returning " db)
+      db))))
+
+(reg-event-db
+  :learn-page-content-recieved
+  (fn [db event]
+    (print "learn page content received")
+    (let [db (assoc db :learn-page-content (second event))]
+      db)))
 
 (reg-event-fx
   :menu-opened
@@ -78,6 +98,10 @@
     :open))
 
 (defn make-remote-call [endpoint]
-  (go (println "fetching data...")
-      (prn (<! (http/get endpoint)))
-      :body))
+  (prn (str "Fetching from " endpoint "..."))
+  (go (let [response (<! (http/get endpoint))]
+        (if (= 200 (:status response))
+          (do
+            (prn response)
+            (re-frame.core/dispatch [:learn-page-content-recieved (:body response)]))
+          (print "An error has occured " response)))))
