@@ -2,10 +2,12 @@
   (:require [clojure.spec.alpha :as s]))
 
 ;; spec of app-db
-(s/def ::greeting string?)
+(s/def ::page keyword?)
+(s/def ::menu-state keyword?)
 (s/def ::app-db
-  (s/keys :req-un [::greeting]))
+  (s/keys :req-un [::page]))
 
 ;; initial state of app-db
-(def app-db {:greeting   "Welcome to Redeemer Baptist Church of Norwalk!"
-             :menu-state "closed"})
+(def app-db {:page   :Home
+             :menu-state :closed
+             :learn-page-content "Learn page"})

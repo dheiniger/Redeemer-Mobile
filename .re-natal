@@ -5,7 +5,11 @@
     "dev": "env/dev",
     "prod": "env/prod"
   },
-  "modules": [],
+  "modules": [
+    "react-native",
+    "./images/logo.png",
+    "./images/hamburger-icon.png"
+  ],
   "imageDirs": [
     "images"
   ],
@@ -20,10 +24,7 @@
     "android": {
       "host": "localhost",
       "modules": [
-        "react-native",
-        "react-native-side-menu",
-        "./images/logo.png",
-        "./images/hamburger-icon.png"
+        "react-native"
       ]
     }
   },
