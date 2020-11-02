@@ -3,12 +3,14 @@
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [redeemer-mobile.events]
             [redeemer-mobile.subs]
-            [redeemer-mobile.common.view :refer [header]]))
+            [redeemer-mobile.common.view :refer [header]]
+            [redeemer-mobile.common.util :as util]))
 
 (def ReactNative (js/require "react-native"))
 (def app-registry (.-AppRegistry ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
-(def view (r/adapt-react-class (.-View ReactNative)))
+(def view (r/adapt-react-class (.-View ReactNative)));;TODO Remove??
+(def scrollview (r/adapt-react-class (.-ScrollView ReactNative)))
 
 
 (defn body [menu-state & content]
@@ -17,34 +19,36 @@
            :style {:width "80%" :height height :margin-left "auto" :margin-right "auto" :z-index -10 :elevation -10}}
      content]))
 
+;;TODO move these
 ;; -- Pages ------------------------------------------------------------
 (defn home-page []
-  [view {:key   "home-page"}
+  [scrollview {:key   "home-page"}
    [text {:style (page-style)} "Home Page"]])
 
 (defn learn-page []
-  (let [learn-page-content (subscribe [:get-learn-page-content])]
-  [view {:key   "learn-page"}
-   [text {:style (page-style)}  @learn-page-content]]))
+  (requested-page "learn-page"))
 
 (defn sermons-page []
-  [view {:key   "sermons-page"}
-   [text {:style (page-style)} "Sermons"]])
+  (requested-page "sermons-page"))
 
 (defn blog-page []
-  [view {:key   "blog-page"}
-   [text {:style (page-style)} "Blog"]])
+  (requested-page "blog-page"))
 
 (defn counseling-page []
-  [view {:key   "counseling-page"}
+  [scrollview {:key   "counseling-page"}
    [text {:style (page-style)} "Counseling"]])
 
 (defn contact-page []
-  [view {:key   "contact-page"}
+  [scrollview {:key   "contact-page"}
    [text {:style (page-style)} "Contact Us"]])
 
 (defn page-style []
   {:font-size 30 :font-weight "100" :text-align "center"})
+
+(defn requested-page[id]
+  (let [page-content (subscribe [:get-page-content id])]
+    [scrollview {:key   id}
+     [text {:style (page-style)}  @page-content]]))
 
 (defn pages []
   {:Home home-page

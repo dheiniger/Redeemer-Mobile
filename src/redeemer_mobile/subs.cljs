@@ -1,5 +1,6 @@
 (ns redeemer-mobile.subs
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub]]
+            [redeemer-mobile.common.util :as util]))
 
 (reg-sub
   :get-page
@@ -12,6 +13,9 @@
     (:menu-state db)))
 
 (reg-sub
-  :get-learn-page-content
+  :get-page-content
   (fn [db _]
-    (:learn-page-content db)))
+    (let [page (:page db)
+          page-content-key (util/make-content-keyword page)
+          to-return (page-content-key db)]
+      to-return)))

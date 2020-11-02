@@ -3,8 +3,10 @@
     [re-frame.core :refer [reg-event-db reg-event-fx after]]
     [clojure.spec.alpha :as s]
     [redeemer-mobile.db :as db :refer [app-db]]
+    [redeemer-mobile.common.util :as util]
     [cljs-http.client :as http]
-    [cljs.core.async :refer [<!]])
+    [cljs.core.async :refer [<!]]
+    [clojure.string :as str])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 ;;TODO - for testing
@@ -46,34 +48,29 @@
   :option-pressed
   (fn [db event]
     (let [url (last event)]
-    (println "Menu option pressed")
-    (println "Event is: " event)
-    (println "Co-effects are: " db)
-    (if (not (nil? url));;TODO BAD - SIDE EFFECT
-      (re-frame.core/dispatch [:page-load-requested (second event) url]))
-    (assoc db :page (second event)
-              :menu-state :closed))))
+      (if (not (nil? url))                                  ;;TODO BAD - SIDE EFFECT
+        (re-frame.core/dispatch [:page-load-requested (second event) url]))
+      (assoc db :page (second event)
+                :menu-state :closed))))
 
-;;TODO cache
 (reg-event-db
   :page-load-requested
   (fn [db event]
-    (let [url (last event)]
-    (prn "Learn page requested...")
-    (prn "co-effects are " db)
-    (prn "event is " event)
-    (prn "db is " (:db db))
-    (let [db (assoc db :learn-page-content "Loading...")];;TODO generalize this
-      (make-remote-call url)
-      (prn "returning " db)
-      db))))
+    (let [url (last event)
+          page (second event)
+          page-content-key (util/make-content-keyword page)]
+      ;;TODO is this bad?
+      (if (nil? (page-content-key db))
+        (do
+          (make-remote-call page url)
+          (assoc db page-content-key "Loading..."))
+        db))))
 
 (reg-event-db
-  :learn-page-content-recieved
+  :page-content-recieved
   (fn [db event]
-    (print "learn page content received")
-    (let [db (assoc db :learn-page-content (second event))]
-      db)))
+    (let [new-db (assoc db (util/make-content-keyword (second event)) (last (remove-html event)))]
+      new-db)))
 
 (reg-event-fx
   :menu-opened
@@ -97,11 +94,14 @@
     :closed
     :open))
 
-(defn make-remote-call [endpoint]
+(defn make-remote-call [page endpoint]
   (prn (str "Fetching from " endpoint "..."))
   (go (let [response (<! (http/get endpoint))]
         (if (= 200 (:status response))
           (do
-            (prn response)
-            (re-frame.core/dispatch [:learn-page-content-recieved (:body response)]))
-          (print "An error has occured " response)))))
+            (prn "response was successful")
+            (re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
+          (prn "An error has occured " response)))))
+
+(defn remove-html [page-content]
+  page-content )
