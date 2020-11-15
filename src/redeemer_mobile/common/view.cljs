@@ -46,7 +46,7 @@
    [menu-item logo-img "Home"]
    [menu-item logo-img "Learn" "https://redeemernorwalk.org/learn/"]
    [menu-item logo-img "Sermons" "https://redeemernorwalk.org/sermons/"]
-   [menu-item logo-img "Blog" "https://redeemernorwalk.org/blog/"]
+   [menu-item logo-img "Blog" "http://54.173.4.142/sites/12/posts/"]
    [menu-item logo-img "Counseling"]
    [menu-item logo-img "Contact"]])
 
@@ -62,5 +62,5 @@
       menu-text]]]])
 
 (defn make-keyword [menu-text]
-  (keyword (str/replace menu-text " " "-" )))
+  (keyword (str/replace menu-text " " "-")))
 

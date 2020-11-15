@@ -9,9 +9,7 @@
     [clojure.string :as str])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-;;TODO - for testing
-(def JSON "{\n  \"firstName\": \"Daniel\",\n  \"lastName\": \"Heiniger\",\n  \"Something Nested\": {\n    \"Key 1\": \"Value 1\"\n  }\n}")
-(def PARSED_JSON (js->clj (.parse js/JSON JSON) :keywordize-keys true))
+
 ;; -- Interceptors ------------------------------------------------------------
 ;;
 ;; See https://github.com/Day8/re-frame/blob/master/docs/Interceptors.md
@@ -30,15 +28,21 @@
 
 ;; -- Handlers --------------------------------------------------------------
 
+(defn make-remote-call [page endpoint]
+  (prn (str "Fetching from " endpoint "..."))
+  (go (let [response (<! (http/get endpoint))]
+        (if (= 200 (:status response))
+          (do
+            (prn "response was successful: ")
+            (re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
+          (prn "An error has occured " response)))))
+
 (reg-event-db
   :initialize-db
   validate-spec
   (fn [_ _]
-    ;;(make-remote-call "http://54.144.99.209:8085/") TODO
+    ;(make-remote-call "http://54.173.4.142/sites/12/posts/")
     (println "initializing...")
-    (println "Json: " PARSED_JSON)
-    (println "First name is: " (:firstName PARSED_JSON))
-    (println "Type is: " (type PARSED_JSON))
     app-db))
 
 ;;TODO do these need to be -fx?
@@ -69,18 +73,37 @@
 (reg-event-db
   :page-content-recieved
   (fn [db event]
-    (let [new-db (assoc db (util/make-content-keyword (second event)) (last (remove-html event)))]
+    (let [entries (last event)
+          new-db (assoc db (util/make-content-keyword (second event)) entries)]
       new-db)))
+
+(reg-event-db
+  :blog-back-button-pressed
+  (fn [db event]
+    (let [page-size (second event)
+          page-number (last event)
+          new-db (assoc db :blog-post-page-number (if (> page-number 1) (- page-number 1)
+                                                                        1)
+                           :blog-post-page-size page-size)] ;;TODO might delete this]
+      (println "blog back button pressed")
+      (println "event is: " event)
+      (println "new db is: " new-db)
+      new-db)))
+
+(reg-event-db
+  :blog-next-button-pressed
+  (fn [db event]
+    db))
 
 (reg-event-fx
   :menu-opened
   (fn [co-effects]
     (update-menu-state co-effects)))
 
-(reg-event-fx
-  :menu-closed
-  (fn [co-effects]
-    (update-menu-state co-effects)))
+(defn toggle-menu [menu-state]
+  (if (= :open menu-state)
+    :closed
+    :open))
 
 (defn update-menu-state [co-effects]
   (let [db (:db co-effects)
@@ -89,19 +112,18 @@
     (assoc new-db :menu-state :closed)
     {:db new-db}))
 
-(defn toggle-menu [menu-state]
-  (if (= :open menu-state)
-    :closed
-    :open))
+(reg-event-fx
+  :menu-closed
+  (fn [co-effects]
+    (update-menu-state co-effects)))
 
-(defn make-remote-call [page endpoint]
+;;TODO remove this
+(defn make-remote-call-test [endpoint]
   (prn (str "Fetching from " endpoint "..."))
   (go (let [response (<! (http/get endpoint))]
         (if (= 200 (:status response))
           (do
-            (prn "response was successful")
-            (re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
+            (prn "response was successful..."))
+          ;;(re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
           (prn "An error has occured " response)))))
 
-(defn remove-html [page-content]
-  page-content )

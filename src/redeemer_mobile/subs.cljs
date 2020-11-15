@@ -17,5 +17,12 @@
   (fn [db _]
     (let [page (:page db)
           page-content-key (util/make-content-keyword page)
-          to-return (page-content-key db)]
+          to-return (page-content-key db)];;TODO
       to-return)))
+
+(reg-sub
+  :get-blog-posts-page
+  (fn [db _]
+    (println "in get blog posts page")
+    (assoc {} :page-number (:blog-post-page-number db)
+              :page-size (:blog-post-page-size db))))
