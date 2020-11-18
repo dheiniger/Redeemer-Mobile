@@ -49,8 +49,10 @@
    [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} (:title blog-post)]
    [text {:style {:text-align "center"}} (:date blog-post)]])
 
-(defn render-page-of-blog-posts [blog-posts page-number page-size]
-  (let [posts-on-page (take page-size blog-posts)]
+(defn render-page-of-blog-posts [page-number page-size]
+  (let [current-page (subscribe [:get-blog-posts-page])
+        posts-on-page (:content @current-page)]
+    (println "current-page is: " @current-page)
     [scrollview {:key   (str "blog-post-page-" page-number)
                  :content-container-style {:paddingBottom 60}}
      (map render-blog-post posts-on-page)
@@ -66,14 +68,10 @@
        [text {:style {:font-weight "bold" :font-size 20 :color "blue" }} "Next"]]]]))
 
 (defn blog-page []
-  (let [blog-posts (subscribe [:get-page-content])
-        blog-posts-page (subscribe [:get-blog-posts-page])
+  (let [blog-posts-page (subscribe [:get-blog-posts-page])
         page-number (or (:page-number @blog-posts-page) 1)
         page-size (or (:page-size @blog-posts-page) 10)]
-  ;      blog-page (subscribe [:get-blog-posts-page])
-  ;      page-number (:page-number @blog-page)
-  ;      page-size (:page-size @blog-page)]
-    (render-page-of-blog-posts @blog-posts page-number page-size)))
+    (render-page-of-blog-posts page-number page-size)))
 
 (defn counseling-page []
   [scrollview {:key "counseling-page"}
@@ -83,6 +81,7 @@
   [scrollview {:key "contact-page"}
    [text {:style (page-style)} "Contact Us"]])
 
+;;TODO how would this work with app db?
 (defn pages []
   {:Home       home-page
    :Learn      learn-page

@@ -28,78 +28,6 @@
 
 ;; -- Handlers --------------------------------------------------------------
 
-(defn make-remote-call [page endpoint]
-  (prn (str "Fetching from " endpoint "..."))
-  (go (let [response (<! (http/get endpoint))]
-        (if (= 200 (:status response))
-          (do
-            (prn "response was successful: ")
-            (re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
-          (prn "An error has occured " response)))))
-
-(reg-event-db
-  :initialize-db
-  validate-spec
-  (fn [_ _]
-    ;(make-remote-call "http://54.173.4.142/sites/12/posts/")
-    (println "initializing...")
-    app-db))
-
-;;TODO do these need to be -fx?
-;;TODO stop doing side effects (instead cause them)
-
-(reg-event-db
-  :option-pressed
-  (fn [db event]
-    (let [url (last event)]
-      (if (not (nil? url))                                  ;;TODO BAD - SIDE EFFECT
-        (re-frame.core/dispatch [:page-load-requested (second event) url]))
-      (assoc db :page (second event)
-                :menu-state :closed))))
-
-(reg-event-db
-  :page-load-requested
-  (fn [db event]
-    (let [url (last event)
-          page (second event)
-          page-content-key (util/make-content-keyword page)]
-      ;;TODO is this bad?
-      (if (nil? (page-content-key db))
-        (do
-          (make-remote-call page url)
-          (assoc db page-content-key "Loading..."))
-        db))))
-
-(reg-event-db
-  :page-content-recieved
-  (fn [db event]
-    (let [entries (last event)
-          new-db (assoc db (util/make-content-keyword (second event)) entries)]
-      new-db)))
-
-(reg-event-db
-  :blog-back-button-pressed
-  (fn [db event]
-    (let [page-size (second event)
-          page-number (last event)
-          new-db (assoc db :blog-post-page-number (if (> page-number 1) (- page-number 1)
-                                                                        1)
-                           :blog-post-page-size page-size)] ;;TODO might delete this]
-      (println "blog back button pressed")
-      (println "event is: " event)
-      (println "new db is: " new-db)
-      new-db)))
-
-(reg-event-db
-  :blog-next-button-pressed
-  (fn [db event]
-    db))
-
-(reg-event-fx
-  :menu-opened
-  (fn [co-effects]
-    (update-menu-state co-effects)))
-
 (defn toggle-menu [menu-state]
   (if (= :open menu-state)
     :closed
@@ -112,18 +40,102 @@
     (assoc new-db :menu-state :closed)
     {:db new-db}))
 
+(defn make-remote-call [page]
+  (let [endpoint (:request-url page)]
+    (prn (str "Fetching from " endpoint "..."))
+    (go (let [response (<! (http/get endpoint))]
+          (if (= 200 (:status response))
+            (do
+              (prn "response was successful: ")
+              (print "requested data for page " page)
+              (re-frame.core/dispatch [:page-content-received page (:body response)]))
+            (prn "An error has occured " response))))))
+
+;;TODO still needed?
+(defn get-page [db page-name]
+  ((keyword page-name) (:pages db)))
+
+
+(defn request-page-content [page]
+  (let [request-url (:request-url page)]
+    (if (and (not (nil? request-url))
+             (= "Loading..." (:content page)))
+      (do (println "Retrieving fresh data")
+          (make-remote-call page))
+      (:content page))))
+
+(reg-event-db
+  :initialize-db
+  validate-spec
+  (fn [_ _]
+    ;(make-remote-call "http://54.173.4.142/sites/12/posts/")
+    (println "initializing...")
+    app-db))
+
+;;TODO do these need to be -fx?
+;;TODO stop doing side effects (instead cause them)
+(reg-event-db
+  :option-pressed
+  (fn [db event]
+    (let [page (get-page db (second event))
+          request-url (:request-url page)]
+      (if (not (nil? request-url))
+        (re-frame.core/dispatch [:page-load-requested page])) ;;TODO BAD - SIDE EFFECT
+      (assoc db :page (keyword (second event))
+                :menu-state :closed))))
+
+(reg-event-db
+  :page-load-requested
+  (fn [db event]
+    (request-page-content (second event))                   ;;TODO big 'ol side-effect
+    db))
+
+(reg-event-db
+  :page-content-received
+  (fn [db event]
+    (println "Page Content Received.  Event is: " event)
+    (println "DB is: " db)
+    (let [content (last event)
+          pages (:pages db)
+          page-to-change (second event)
+          changed-page (assoc page-to-change :content (last event))
+          page-name (:navigation (second event))
+          k (keyword page-name)
+          new-db (assoc-in db [:pages k :content] content)]
+      (println "Pages are: " pages)
+      (println "k is: " k)
+      (println "new-db is: " new-db)
+      (println "Page to change is: " page-to-change)
+      (println "Changed-page is: " changed-page)
+      new-db)))
+
+(reg-event-db
+  :blog-back-button-pressed
+  (fn [db event]
+    (let [page-size (second event)
+          page-number (last event)                          ;;TODO move dec logic here
+          new-db (assoc db :blog-post-page-number (if (> page-number 1) (- page-number 1) 1)
+                           :blog-post-page-size page-size)]
+      (make-remote-call nil)                                ;;TODO
+      new-db)))
+
+;;TODO condense these into 1 function?
+(reg-event-db
+  :blog-next-button-pressed
+  (fn [db event]
+    (let [page-size (second event)
+          page-number (last event)                          ;;TODO move inc logic here
+          new-db (assoc db :blog-post-page-number (+ page-number 1)
+                           :blog-post-page-size page-size)]
+      (make-remote-call nil)                                ;;TODO
+      new-db)))
+
+(reg-event-fx
+  :menu-opened
+  (fn [co-effects]
+    (update-menu-state co-effects)))
+
 (reg-event-fx
   :menu-closed
   (fn [co-effects]
     (update-menu-state co-effects)))
-
-;;TODO remove this
-(defn make-remote-call-test [endpoint]
-  (prn (str "Fetching from " endpoint "..."))
-  (go (let [response (<! (http/get endpoint))]
-        (if (= 200 (:status response))
-          (do
-            (prn "response was successful..."))
-          ;;(re-frame.core/dispatch [:page-content-recieved page endpoint (:body response)]))
-          (prn "An error has occured " response)))))
-

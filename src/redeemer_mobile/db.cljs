@@ -7,9 +7,15 @@
 (s/def ::app-db
   (s/keys :req-un [::page]))
 
-;;TODO initialize data like blog post pages, that way I might be able to get rid of checks in the views
-;;TODO make sure it would work if I addd new pages, etc.  Don't necessarily want to have to update this for every
-;;TODO new page
 ;; initial state of app-db
-(def app-db {:page   :Home
-             :menu-state :closed})
+(def app-db {:page       :Home
+             :menu-state :closed
+             :pages      {:Home       {:navigation "Home" :content "Welcome to Redeemer"}
+                          :Learn      {:navigation "Learn" :content "Learn.  Coming soon" :request-url "https://redeemernorwalk.org/learn/"}
+                          :Sermons    {:navigation "Sermons" :content "Loading..." :request-url "https://redeemernorwalk.org/sermons/"}
+                          :Blog       {:navigation "Blog" :content "Loading..." :request-url "http://54.173.4.142/sites/12/posts/?&page_num=1" ;;TODO is this dumb?
+                                        :pages      {:name "1" :content "Loading..." :request-url "http://54.173.4.142/sites/12/posts/?&page_num=1"}}
+                          :Counseling {:navigation "Counseling" :content "Counseling page in progress" :request-url "http://54.173.4.142/sites/12/posts/?&page_num=1"}
+                          :Contact    {:navigation "Contact" :content "Contact us"}}})
+
+
