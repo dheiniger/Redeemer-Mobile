@@ -45,7 +45,7 @@
 
 (defn render-blog-post [blog-post]
   [view {:key   (:id blog-post)
-         :style {:margin-bottom 15 :background-color "green"}}
+         :style {:margin-bottom 15}}
    [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} (:title blog-post)]
    [text {:style {:text-align "center"}} (:date blog-post)]])
 
