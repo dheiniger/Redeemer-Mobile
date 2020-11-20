@@ -16,20 +16,17 @@
   :get-page-content
   (fn [db _]
     (let [page (:page db)
-          page-content-key (util/make-content-keyword page)
-          to-return (page-content-key db)]                  ;;TODO don't make this a variable
-      to-return)))
+          page-content-key (util/make-content-keyword page)]
+      (page-content-key db))))
 
 (reg-sub
   :get-blog-posts-page
   (fn [db _]
-    (println "in get blog posts page")
-    (println "db is " db)
-    (let [blog-page-number (or (:blog-post-page-number db) 1)
-          blog-post-page-size (or (:blog-post-page-size db) 10) ;;TODO clean this up
-          current-blog-page-content  (:content(:Blog(:pages db)))
-          toReturn (assoc {} :page-number (:blog-post-page-number db);;TODO don't make this a variable
-                             :page-size (:blog-post-page-size db)
-                             :content current-blog-page-content)]
-    (println "Returning.... " toReturn)
-    toReturn)))
+    (let [{:keys [blog-post-page-number blog-post-page-size]
+           :or   {blog-post-page-number 1,
+                  blog-post-page-size   10}} db
+          current-blog-page-content (-> db :pages :Blog :content)]
+      (prn "get blog posts page content is " current-blog-page-content)
+      (assoc {} :page-number blog-post-page-number
+                :page-size blog-post-page-size
+                :content current-blog-page-content))))

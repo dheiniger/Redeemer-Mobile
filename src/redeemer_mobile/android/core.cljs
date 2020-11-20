@@ -45,32 +45,32 @@
 
 (defn render-blog-post [blog-post]
   [view {:key   (:id blog-post)
-         :style {:margin-bottom 15}}
+         :style {:margin-bottom 15 :background-color "green"}}
    [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} (:title blog-post)]
    [text {:style {:text-align "center"}} (:date blog-post)]])
 
 (defn render-page-of-blog-posts [page-number page-size]
   (let [current-page (subscribe [:get-blog-posts-page])
         posts-on-page (:content @current-page)]
-    (println "current-page is: " @current-page)
-    [scrollview {:key   (str "blog-post-page-" page-number)
+    [scrollview {:key                     (str "blog-post-page-" page-number)
                  :content-container-style {:paddingBottom 60}}
-     (map render-blog-post posts-on-page)
-     [view {:key "navigation bar"
+     (if-not (string? posts-on-page) (map render-blog-post posts-on-page) ;;TODO this is messy
+                                     [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} posts-on-page])
+     [view {:key   "navigation bar"
             :style {:flex-direction "row" :justify-content "space-between"}}
       [touchable-highlight
-       {:on-press #(re-frame.core/dispatch [:blog-back-button-pressed page-size page-number])
+       {:on-press       #(re-frame.core/dispatch [:blog-back-button-pressed page-size page-number])
         :underlay-color "white"}
        [text {:style {:font-weight "bold" :font-size 20 :color "blue"}} "Back"]]
       [touchable-highlight
        {:on-press       #(re-frame.core/dispatch [:blog-next-button-pressed page-size page-number])
         :underlay-color "white"}
-       [text {:style {:font-weight "bold" :font-size 20 :color "blue" }} "Next"]]]]))
+       [text {:style {:font-weight "bold" :font-size 20 :color "blue"}} "Next"]]]]))
 
 (defn blog-page []
   (let [blog-posts-page (subscribe [:get-blog-posts-page])
-        page-number (or (:page-number @blog-posts-page) 1)
-        page-size (or (:page-size @blog-posts-page) 10)]
+        page-number (:page-number @blog-posts-page)
+        page-size (:page-size @blog-posts-page)]
     (render-page-of-blog-posts page-number page-size)))
 
 (defn counseling-page []
