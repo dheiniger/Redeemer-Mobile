@@ -24,7 +24,7 @@
       menu-text]]]])
 
 (defn menu-items []
-  [view ;;TODO pull pages from db and render them from there.  I can see
+  [view                                                     ;;TODO pull pages from db and render them from there.
    [menu-item logo-img "Home"]
    [menu-item logo-img "Learn"]
    [menu-item logo-img "Sermons"]
@@ -59,9 +59,3 @@
    [menu state]
    [image {:source logo-img
            :style  {:width 40 :height 60 :margin-top -5 :margin-right 5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
-
-
-;;TODO remove this.
-(defn make-keyword [menu-text]
-  (keyword (str/replace menu-text " " "-")))
-

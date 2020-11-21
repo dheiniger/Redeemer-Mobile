@@ -22,11 +22,11 @@
 (reg-sub
   :get-blog-posts-page
   (fn [db _]
-    (let [{:keys [blog-post-page-number blog-post-page-size]
-           :or   {blog-post-page-number 1,
-                  blog-post-page-size   10}} db
-          current-blog-page-content (-> db :pages :Blog :content)]
-      (prn "get blog posts page content is " current-blog-page-content)
-      (assoc {} :page-number blog-post-page-number
-                :page-size blog-post-page-size
-                :content current-blog-page-content))))
+    (let [{{:keys [Blog]} :pages} db
+          current-page-number (:current-page-number Blog)
+          index-key (keyword (str current-page-number))]
+      (assoc {} :page-number current-page-number
+                :content (-> Blog
+                             :pages
+                             index-key
+                             :content)))))

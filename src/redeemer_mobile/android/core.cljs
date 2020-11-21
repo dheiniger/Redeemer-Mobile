@@ -9,12 +9,10 @@
 (def ReactNative (js/require "react-native"))
 (def app-registry (.-AppRegistry ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
-(def view (r/adapt-react-class (.-View ReactNative)))       ;;TODO Remove??
+(def view (r/adapt-react-class (.-View ReactNative)))
 (def scrollview (r/adapt-react-class (.-ScrollView ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 
-(defn alert [title]
-  (.alert (.-Alert ReactNative) title))                     ;;TODO remove this
 
 (defn body [menu-state & content]
   (let [height (if (= :open menu-state) 0 "auto")]
@@ -44,18 +42,16 @@
   (requested-page "sermons-page"))
 
 (defn render-blog-post [blog-post]
-  [view {:key   (:id blog-post)
+  [view {:key   (or (:id blog-post) "blog")
          :style {:margin-bottom 15}}
-   [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} (:title blog-post)]
+   [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} (or (:title blog-post) blog-post)]
    [text {:style {:text-align "center"}} (:date blog-post)]])
 
-(defn render-page-of-blog-posts [page-number page-size]
-  (let [current-page (subscribe [:get-blog-posts-page])
-        posts-on-page (:content @current-page)]
+(defn render-page-of-blog-posts [current-page page-number page-size]
+  (let [posts-on-page (:content current-page)]
     [scrollview {:key                     (str "blog-post-page-" page-number)
                  :content-container-style {:paddingBottom 60}}
-     (if-not (string? posts-on-page) (map render-blog-post posts-on-page) ;;TODO this is messy
-                                     [text {:style {:font-size 30 :font-weight "bold" :text-align "center"}} posts-on-page])
+     (map render-blog-post posts-on-page)
      [view {:key   "navigation bar"
             :style {:flex-direction "row" :justify-content "space-between"}}
       [touchable-highlight
@@ -71,7 +67,7 @@
   (let [blog-posts-page (subscribe [:get-blog-posts-page])
         page-number (:page-number @blog-posts-page)
         page-size (:page-size @blog-posts-page)]
-    (render-page-of-blog-posts page-number page-size)))
+    (render-page-of-blog-posts @blog-posts-page page-number page-size)))
 
 (defn counseling-page []
   [scrollview {:key "counseling-page"}
@@ -82,6 +78,7 @@
    [text {:style (page-style)} "Contact Us"]])
 
 ;;TODO how would this work with app db?
+;;TODO create a sub for them??
 (defn pages []
   {:Home       home-page
    :Learn      learn-page
