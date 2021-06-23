@@ -24,13 +24,13 @@
 (defn about-page []
   [scrollview {:key "about-page" :shows-verticalScrollIndicator false}
    [view {:style {:padding-bottom 60}}
-    [text {:style {:font-size 30 :font-weight "bold" :text-align "center" :color "#004247"}} "Service Times"]
+    [text {:style {:font-size 30 :font-weight "bold" :color "#004247"}} "Service Times"]
     [text {:style {:font-size 18}} "•Sunday Morning Ministry Classes (ages 3-adult)"]
     [text {:style {:font-size 18}} "•Sundays at 9:00 AM"]
     [text {:style {:font-size 18}} "•Coffee Fellowship 10-10:30 AM"]
     [text {:style {:font-size 18}} "•Morning Worship Service 11:00 AM"]
     [text {:style {:font-size 18}} "•Nursery is Available (ages NB-2 years)\n"]
-    [text {:style {:font-size 30 :font-weight "bold" :text-align "center" :color "#004247"}} "What should I Expect"]
+    [text {:style {:font-size 30 :font-weight "bold" :color "#004247"}} "What should I Expect"]
     [text {:style {:font-size 18}} "You will be welcomed by loving and caring people. A greeter will show you our coffee area. We do offer child care for age 3 and under, and the greeter can direct you to that as well. The service itself will be worshipful, practical, and gospel-centered. After the service, we normally spend time catching up with one another.\n"]
     [text {:style {:font-size 18}} "Kids are a big part of our church family! We have teen ministries, children’s ministries, and nursery for kids ages newborn-2 years."]
     [text {:style {:font-size 18}} "Our music is a combination of familiar gospel hymns as well as easy-to-sing modern tunes. You will probably be familiar with many of the songs we sing, but even if you are not, the songs should be easy to pick up.\n"]]])
