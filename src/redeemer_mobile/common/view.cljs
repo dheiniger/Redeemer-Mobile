@@ -1,16 +1,59 @@
 (ns redeemer-mobile.common.view
   (:require [reagent.core :as r :refer [atom]]
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
-            [clojure.string :as str]))
+            [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
 
 (def ReactNative (js/require "react-native"))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
+(def scrollview (r/adapt-react-class (.-ScrollView ReactNative)))
 (def logo-img (js/require "./images/logo.png"))
 (def menu-img (js/require "./images/hamburger-icon.png"))
 (def menu-width 310)
+
+;; -- Pages ------------------------------------------------------------
+
+(defn page-style []
+  {:font-size 30 :font-weight "100" :text-align "center"})
+
+(defn home-page []
+  [scrollview {:key "home-page"}
+   [text {:style (page-style)} "Home Page"]])
+
+(defn learn-page []
+  [scrollview {:key "learn-page"}
+   [text {:style (page-style)} "Learn page coming soon"]])
+
+(defn sermons-page []
+  [scrollview {:key "sermons-page"}
+   [text {:style (page-style)} "Sermons coming soon"]])
+
+(defn blog-page []
+  [scrollview {:key "blog-page"}
+   [text {:style (page-style)} "Blog coming soon"]])
+
+(defn counseling-page []
+  [scrollview {:key "counseling-page"}
+   [text {:style (page-style)} "Counseling coming soon"]])
+
+(defn contact-page []
+  [scrollview {:key "contact-page"}
+   [text {:style (page-style)} "Contact Us"]])
+
+(def pages
+  {:Home       home-page
+   :About      learn-page
+   :Sermons    sermons-page
+   :Blog       blog-page
+   :Counseling counseling-page
+   :Contact    contact-page})
+
+(defn get-page [page-name]
+  (or (page-name pages) home-page))
+
+;;End Pages --------------------------------------------
+
 
 (defn menu-item [icon menu-text]
   [view {:style {:height 45}}
@@ -24,13 +67,9 @@
       menu-text]]]])
 
 (defn menu-items []
-  [view                                                     ;;TODO pull pages from db and render them from there.
-   [menu-item logo-img "Home"]
-   [menu-item logo-img "Learn"]
-   [menu-item logo-img "Sermons"]
-   [menu-item logo-img "Blog"]
-   [menu-item logo-img "Counseling"]
-   [menu-item logo-img "Contact"]])
+  [view
+   (for [page pages]
+       [menu-item logo-img (name (first page))])])
 
 (defn menu-open []
   [view {:style {:width menu-width :height 900 :background-color "white"}}
@@ -59,3 +98,9 @@
    [menu state]
    [image {:source logo-img
            :style  {:width 40 :height 60 :margin-top -5 :margin-right 5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
+
+(defn body [menu-state & content]
+  (let [height (if (= :open menu-state) 0 "auto")]
+    [view {:key   "body"
+           :style {:width "80%" :height height :margin-left "auto" :margin-right "auto" :z-index -10 :elevation -10}}
+     content]))
