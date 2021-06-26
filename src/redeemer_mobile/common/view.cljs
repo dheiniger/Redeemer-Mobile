@@ -1,11 +1,14 @@
 (ns redeemer-mobile.common.view
   (:require [reagent.core :as r :refer [atom]]
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
+            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
+            [redeemer-mobile.common.styles :as style]))
 
 (def ReactNative (js/require "react-native"))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def text (r/adapt-react-class (.-Text ReactNative)))
+(def input (r/adapt-react-class (.-TextInput ReactNative)))
+(def button (r/adapt-react-class (.-Button ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def scrollview (r/adapt-react-class (.-ScrollView ReactNative)))
 (def logo-img (js/require "./images/logo.png"))
@@ -49,7 +52,12 @@
 
 (defn contact-page []
   [scrollview {:key "contact-page"}
-   [text {:style (page-style)} "Contact Us"]])
+   [text {:style (page-style)} "Contact Us"]
+   [input {:style style/input-style :placeholder "Name"}]
+   [input {:style style/input-style :placeholder "Email Address"}]
+   [input {:style style/input-style :placeholder "Comment or message"}]
+   [button {:title "Submit" :on-press #(print "pushed")}]])
+
 
 (def pages
   {:Home       home-page
@@ -64,9 +72,9 @@
 
 ;;End Pages --------------------------------------------
 
-
 (defn menu-item [icon menu-text]
-  [view {:style {:height 45}}
+  [view {:style {:height 45}
+         :key (keyword menu-text)}
    [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed menu-text])
                          :style          {:width menu-width :height 45}
                          :underlay-color "white"}
