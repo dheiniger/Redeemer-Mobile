@@ -72,3 +72,8 @@ figwheel_server.log
 
 *~
 android/linux-install*.sh
+
+#build stuff
+android/app/build.gradle
+android/gradle.properties
+release.sh
