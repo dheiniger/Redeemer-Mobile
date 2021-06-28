@@ -1,7 +1,8 @@
 (ns redeemer-mobile.common.view
   (:require [reagent.core :as r :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
-            [redeemer-mobile.common.styles :as style]))
+            [redeemer-mobile.common.styles :as style]
+            [redeemer-mobile.common.resources :as resource]))
 
 (def ReactNative (js/require "react-native"))
 (def view (r/adapt-react-class (.-View ReactNative)))
@@ -11,8 +12,7 @@
 (def button (r/adapt-react-class (.-Button ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def scrollview (r/adapt-react-class (.-ScrollView ReactNative)))
-(def logo-img (js/require "./images/logo.png"))
-(def menu-img (js/require "./images/hamburger-icon.png"))
+
 (def menu-width 310)
 
 ;; -- Pages ------------------------------------------------------------
@@ -38,15 +38,15 @@
     [text {:style {:font-size 18}} "Kids are a big part of our church family! We have teen ministries, children’s ministries, and nursery for kids ages newborn-2 years."]
     [text {:style {:font-size 18}} "Our music is a combination of familiar gospel hymns as well as easy-to-sing modern tunes. You will probably be familiar with many of the songs we sing, but even if you are not, the songs should be easy to pick up.\n"]]])
 
-(defn sermons-page []
+(defn watch-sermons-page []
   [scrollview {:key "sermons-page"}
    [text {:style (page-style)} "Sermons coming soon"]])
 
-(defn blog-page []
+(defn hear-sermons-page []
   [scrollview {:key "blog-page"}
    [text {:style (page-style)} "Blog coming soon"]])
 
-(defn counseling-page []
+(defn read-blog-page []
   [scrollview {:key "counseling-page"}
    [text {:style (page-style)} "Counseling coming soon"]])
 
@@ -60,41 +60,41 @@
 
 
 (def pages
-  {:Home       home-page
-   :About      about-page
-   :Sermons    sermons-page
-   :Blog       blog-page
-   :Counseling counseling-page
-   :Contact    contact-page})
+  {:Home       {:page-view home-page}
+   :About      {:page-view about-page}
+   :Watch      {:page-view watch-sermons-page :icon resource/watch-img}
+   :Listen     {:page-view hear-sermons-page :icon resource/listen-img}
+   :Read       {:page-view read-blog-page}
+   :Contact    {:page-view contact-page :icon resource/contact-img}})
 
 (defn get-page [page-name]
-  (or (page-name pages) home-page))
+  (or (:page-view (page-name pages) home-page)))
 
 ;;End Pages --------------------------------------------
 
 (defn menu-item [icon menu-text]
   [view {:style {:height 45}
-         :key (keyword menu-text)}
+         :key   (keyword menu-text)}
    [touchable-highlight {:on-press       #(re-frame.core/dispatch [:option-pressed menu-text])
                          :style          {:width menu-width :height 45}
                          :underlay-color "white"}
     [view
      [image {:source icon
-             :style  {:height 45 :width 40}}]
+             :style  {:height 37 :width 28 :margin-left 10 :margin-top 5}}]
      [text {:style {:font-size 30 :flex 1 :position "absolute" :left 60}}
       menu-text]]]])
 
 (defn menu-items []
   [view
    (for [page pages]
-     [menu-item logo-img (name (first page))])])
+     [menu-item (:icon (second page)) (name (first page))])])
 
 (defn menu-open []
   [view {:style {:width menu-width :height 900 :background-color "white"}}
    [touchable-highlight {:on-press       #(re-frame.core/dispatch [:menu-closed])
                          :style          {:height 50 :width 50 :left (- menu-width 50)}
                          :underlay-color "white"}
-    [image {:source menu-img
+    [image {:source resource/menu-img
             :style  {:height 25 :width 35 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 8}}]]
    [menu-items]])
 
@@ -103,7 +103,7 @@
    [touchable-highlight {:on-press       #(re-frame.core/dispatch [:menu-opened])
                          :style          {:height 50 :width 50}
                          :underlay-color "white"}
-    [image {:source menu-img
+    [image {:source resource/menu-img
             :style  {:height 25 :width 35 :margin 8 :position "absolute" :resizeMode "contain" :flex 1 :left "0%" :top 0}}]]])
 
 (defn menu [state]
@@ -114,7 +114,7 @@
 (defn header [state]
   [view {:style {:height 60}}
    [menu state]
-   [image {:source logo-img
+   [image {:source resource/logo-img
            :style  {:width 40 :height 60 :margin-top -5 :margin-right 5 :position "absolute" :resizeMode "contain" :flex 1 :right "0%" :top "0%"}}]])
 
 (defn body [menu-state & content]
